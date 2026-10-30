@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Client Loyalty Card Portal</title>
+    <style>
+        body {
+            font-family: 'Segoe UI', Arial, sans-serif;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            margin: 0;
+            padding: 20px;
+            box-sizing: border-box;
+            background-color: #FFF4DE; 
+            background-image: 
+                linear-gradient(#F2D0B1 1px, transparent 1px), 
+                linear-gradient(90deg, #F2D0B1 1px, transparent 1px); 
+            background-size: 25px 25px; 
+            color: #2c1e11; 
+        }
+
+        .portal-center-layout {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            text-align: center;
+            width: 100%;
+            max-width: 420px;
+        }
+
+        .search-instruction-label {
+            font-size: 16px;
+            font-weight: 700;
+            color: #7c533c;
+            margin-bottom: 12px;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        .search-box-row {
+            margin-bottom: 24px;
+            display: flex;
+            gap: 10px;
+            width: 100%;
+        }
+
+        .search-input {
+            flex: 1;
+            padding: 14px 20px;
+            font-size: 16px;
+            border: 3px solid #7c533c;
+            border-radius: 20px;
+            outline: none;
+            color: #4a3321;
+            font-weight: 600;
+            background: #ffffff;
+            box-shadow: 0 4px 12px rgba(124, 83, 60, 0.05);
+            transition: border-color 0.2s;
+        }
+
+        .search-input:focus {
+            border-color: #e19e75;
+        }
+
+        .search-input::placeholder {
+            color: #c9b19f;
+        }
+
+        .search-btn {
+            padding: 0 25px;
+            font-size: 16px;
+            font-weight: 700;
+            background: linear-gradient(135deg, #e19e75, #c87a4b);
+            color: white;
+            border: none;
+            border-radius: 20px;
+            cursor: pointer;
+            box-shadow: 0 4px 10px rgba(200, 122, 75, 0.2);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .search-btn:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 6px 14px rgba(200, 122, 75, 0.35);
+        }
+
+        .card-display-area {
+            width: 100%;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100px;
+        }
+
+        .loyalty-card-trigger {
+            background: none;
+            border: none;
+            padding: 0;
+            cursor: pointer;
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            display: none;
+        }
+
+        .loyalty-card-trigger:hover {
+            transform: scale(1.04);
+        }
+
+        .loyalty-card-trigger img {
+            width: 100%;
+            max-width: 340px;
+            height: auto;
+            border-radius: 20px;
+            box-shadow: 0 10px 30px rgba(124, 83, 60, 0.25);
+            display: block;
+        }
+
+        .no-result-msg {
+            color: #9c806c;
+            font-weight: 600;
+            font-size: 14px;
+            display: none;
+            background: rgba(255, 255, 255, 0.6);
+            padding: 10px 20px;
+            border-radius: 12px;
+            border: 1px dashed #e2d3ba;
+        }
+
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            top: 0; left: 0;
+            width: 100vw; height: 100vh;
+            background: rgba(44, 30, 17, 0.65); 
+            backdrop-filter: blur(8px); 
+            -webkit-backdrop-filter: blur(8px);
+            justify-content: center;
+            align-items: center;
+            z-index: 100;
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .modal-overlay.active {
+            opacity: 1;
+        }
+
+        .modal-card-container {
+            background: #ffffff;
+            border: 4px solid #7c533c;
+            border-radius: 28px;
+            width: 380px;
+            padding: 24px;
+            box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+            transform: scale(0.85);
+            transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            text-align: center;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            box-sizing: border-box;
+        }
+
+        .modal-overlay.active .modal-card-container {
+            transform: scale(1);
+        }
+
+        .modal-card-container img {
+            width: 100%;
+            height: auto;
+            border-radius: 18px;
+            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+        }
+
+        .info-dropdown-drawer {
+            margin-top: 18px;
+            background: #fffaf0;
+            border: 2px dashed #e19e75;
+            border-radius: 16px;
+            padding: 14px;
+            text-align: left;
+            width: 100%;
+            box-sizing: border-box;
+            display: none;
+            max-height: 220px;
+            overflow-y: auto;
+        }
+
+        .info-title {
+            font-size: 11px;
+            font-weight: 800;
+            color: #c87a4b;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+            margin-bottom: 12px;
+        }
+
+        .discount-item-block {
+            margin-bottom: 12px;
+            border-bottom: 1px dashed rgba(225, 158, 117, 0.3);
+            padding-bottom: 10px;
+        }
+        .discount-item-block:last-child {
+            margin-bottom: 0;
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .info-detail {
+            font-size: 14px;
+            color: #4a3321;
+            font-weight: 600;
+            margin: 0;
+            line-height: 1.4;
+        }
+
+        .expiry-caption {
+            color: #8c827a; 
+            font-size: 12px; 
+            font-weight: 500;
+            margin-top: 4px;
+            margin-bottom: 0;
+            display: block;
+        }
+
+        .close-portal-btn {
+            margin-top: 20px;
+            padding: 10px 35px;
+            font-size: 14px;
+            background: #fff4de;
+            color: #7c533c;
+            border: 1px solid #e2d3ba;
+            border-radius: 20px;
+            cursor: pointer;
+            font-weight: 700;
+            transition: all 0.2s;
+        }
+
+        .close-portal-btn:hover {
+            background: #7c533c;
+            color: white;
+            border-color: #7c533c;
+        }
+    </style>
+</head>
+<body>
+
+    <div class="portal-center-layout">
+        <div class="search-instruction-label">Enter your discord username</div>
+
+        <div class="search-box-row">
+            <input type="text" id="username-input" class="search-input" placeholder="e.g. username#0000" onkeydown="if(event.key==='Enter') findCard()">
+            <button class="search-btn" id="find-btn" onclick="findCard()">FIND</button>
+        </div>
+
+        <div class="card-display-area">
+            <button id="result-card" class="loyalty-card-trigger" onclick="openEnlargedView()">
+                <img id="card-img" src="" alt="Loyalty Card Graphic Asset">
+            </button>
+            <div id="empty-message" class="no-result-msg">No loyalty records found for this username.</div>
+        </div>
+    </div>
+
+    <div id="portal-modal" class="modal-overlay" onclick="closeEnlargedView()">
+        <div class="modal-card-container" onclick="event.stopPropagation()">
+            <img id="modal-img" src="" alt="Enlarged Card Display View">
+            
+            <div id="modal-dropdown" class="info-dropdown-drawer">
+                <div class="info-title">Active Perks & Discounts</div>
+                <div id="discounts-list-container"></div>
+            </div>
+
+            <button class="close-portal-btn" onclick="closeEnlargedView()">Close Card</button>
+        </div>
+    </div>
+
+    <script>
+        /* FIXED DIRECT CSV ENDPOINT URL PATHWAY */
+        const CSV_URL = "https://google.com";
+
+        let currentActiveRecord = null;
+
+        function parseCSV(text) {
+            const lines = text.split(/\r?\n/);
+            const data = {};
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const matches = [];
+                let rowIdx = 0;
+                let insideQuote = false;
+                let currentColumn = '';
+                
+                while (rowIdx < line.length) {
+                    const char = line[rowIdx];
+                    if (char === '"') {
+                        insideQuote = !insideQuote;
+                    } else if (char === ',' && !insideQuote) {
+                        matches.push(currentColumn.trim());
+                        currentColumn = '';
+                    } else {
+                        currentColumn += char;
+                    }
+                    rowIdx++;
+                }
+                matches.push(currentColumn.trim());
+                
+                const cleanRow = matches.map(val => val.replace(/^"|"$/g, '').trim());
+                if (cleanRow.length < 2) continue;
+                
+                const userKey = cleanRow[0].toLowerCase();
+                const rawDiscountsText = cleanRow[3] || '';
+                
+                data[userKey] = {
+                    image: cleanRow[1],
+                    hasDiscount: cleanRow[2] ? cleanRow[2].toUpperCase() === 'TRUE' : false,
