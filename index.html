@@ -41,6 +41,15 @@
             letter-spacing: 0.5px;
             text-transform: uppercase;
         }
+		
+		.updates-caption {
+            font-size: 12px;
+            font-weight: 600;
+            color: #9c806c;
+            margin-top: -6px; /* Pulls it up slightly closer to the main heading */
+            margin-bottom: 16px; /* Creates spacing above the search input row */
+            letter-spacing: 0.3px;
+		}
 
         .search-box-row {
             margin-bottom: 24px;
@@ -150,12 +159,12 @@
         }
 
         .modal-card-container {
-            background: #ffffff;
-            border: 4px solid #7c533c;
-            border-radius: 28px;
-            width: 380px;
-            padding: 24px;
-            box-shadow: 0 25px 60px rgba(0,0,0,0.35);
+            background: transparent; /* Removes the white background */
+            border: none; /* Removes the brown border frame */
+            border-radius: 0;
+            width: 100%;
+            max-width: 680px; /* Limits maximum size to keep aspect ratio safe */
+            padding: 0; /* Drops outer white padding */
             transform: scale(0.85);
             transition: transform 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             text-align: center;
@@ -165,15 +174,12 @@
             box-sizing: border-box;
         }
 
-        .modal-overlay.active .modal-card-container {
-            transform: scale(1);
-        }
-
         .modal-card-container img {
             width: 100%;
             height: auto;
-            border-radius: 18px;
-            box-shadow: 0 6px 15px rgba(0,0,0,0.1);
+            border-radius: 20px; /* Keeps the card edges rounded nicely */
+            box-shadow: 0 20px 50px rgba(0, 0, 0, 0.5); /* Drops clean shadow straight from your image data */
+            display: block;
         }
 
         .info-dropdown-drawer {
@@ -245,25 +251,46 @@
             color: white;
             border-color: #7c533c;
         }
+		@keyframes typingDots {
+            0% { content: ""; }
+            25% { content: "."; }
+            50% { content: ".."; }
+            75% { content: "..."; }
+            100% { content: ""; }
+        }
+
+        .searching-pulse::after {
+            content: "";
+            animation: typingDots 1.0s infinite steps(1);
+            font-weight: 700;
+            display: inline-block;
+            width: 15px; /* Reserves space so the button layout doesn't jitter */
+            text-align: left;
+        }
     </style>
 </head>
 <body>
 
-    <div class="portal-center-layout">
-        <div class="search-instruction-label">Enter your discord username</div>
+		<div class="portal-center-layout">
+			<div class="search-instruction-label">Enter your discord username</div>
+			
+			<div class="updates-caption">updates at 12:00 GMT 8+</div>
 
-        <div class="search-box-row">
-            <input type="text" id="username-input" class="search-input" placeholder="e.g. username#0000" onkeydown="if(event.key==='Enter') findCard()">
-            <button class="search-btn" id="find-btn" onclick="findCard()">FIND</button>
-        </div>
+			<div class="search-box-row">
+				<input type="text" id="username-input" class="search-input" placeholder="e.g. 87_86" onkeydown="if(event.key==='Enter') findCard()">
+				<button class="search-btn" id="find-btn" onclick="findCard()">FIND</button>
+			</div>
 
-        <div class="card-display-area">
-            <button id="result-card" class="loyalty-card-trigger" onclick="openEnlargedView()">
-                <img id="card-img" src="" alt="Loyalty Card Graphic Asset">
-            </button>
-            <div id="empty-message" class="no-result-msg">No loyalty records found for this username.</div>
-        </div>
-    </div>
+			<div class="card-display-area" style="flex-direction: column;">
+				<button id="result-card" class="loyalty-card-trigger" onclick="openEnlargedView()">
+					<img id="card-img" src="" alt="Loyalty Card Graphic Asset">
+				</button>
+				<div id="click-details-hint" style="display: none; color: #9c806c; font-weight: 600; font-size: 13px; margin-top: 10px; letter-spacing: 0.5px; text-transform: uppercase;">
+					click to see details
+				</div>
+				<div id="empty-message" class="no-result-msg">No loyalty records found for this username.</div>
+			</div>
+		</div>
 
     <div id="portal-modal" class="modal-overlay" onclick="closeEnlargedView()">
         <div class="modal-card-container" onclick="event.stopPropagation()">
@@ -279,44 +306,173 @@
     </div>
 
     <script>
-        /* FIXED DIRECT CSV ENDPOINT URL PATHWAY */
-        const CSV_URL = "https://google.com";
+        /**
+         * MANUAL DATABASE DICTIONARY (ARRAY VERSION)
+         * Notice how 'perks' is now inside brackets [ ] containing multiple reward items.
+         */
+        const loyaltyDatabase = {
+            "pillowpee73": {
+                image: "images/pillow.png",
+                hasDiscount: true,
+                perks: [
+                    { text: "⋆˚꩜｡ FREE Illustration", expiry: "November 30, 2026" }
+                ]
+            },
+            "blissfulasmo": {
+                image: "images/blissfullystraight.png",
+                hasDiscount: false,
+                perks: [] // Stays empty
+            },
+			"b0ts": {
+				image: "images/bots_1.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"marvelouscarty": {
+				image: "images/carty.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"rawr3766": {
+				image: "images/eepy.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"vxiiveelyn": {
+				image: "images/ivy.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"jane": {
+				image: "images/jane2.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"aian_jj": {
+				image: "images/jayden.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"kkookie": {
+				image: "images/ENTER.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"opal_arts": {
+				image: "images/kookie.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"grask": {
+				image: "images/eepy.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"maybewanderer": {
+				image: "images/robin_1.png",
+				hasDiscount: false,
+				perks: []
+			},
+			"akiciro": {
+                image: "images/Sebastian.png",
+                hasDiscount: true,
+                perks: [
+                    { text: "⋆˚꩜｡ 20% OFF on the next Illustration", expiry: "November 22, 2026" }
+                ]
+            }
+        };
 
         let currentActiveRecord = null;
 
-        function parseCSV(text) {
-            const lines = text.split(/\r?\n/);
-            const data = {};
-            
-            for (let i = 1; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-                
-                const matches = [];
-                let rowIdx = 0;
-                let insideQuote = false;
-                let currentColumn = '';
-                
-                while (rowIdx < line.length) {
-                    const char = line[rowIdx];
-                    if (char === '"') {
-                        insideQuote = !insideQuote;
-                    } else if (char === ',' && !insideQuote) {
-                        matches.push(currentColumn.trim());
-                        currentColumn = '';
-                    } else {
-                        currentColumn += char;
-                    }
-                    rowIdx++;
+        function findCard() {
+            const inputField = document.getElementById('username-input');
+            const resultCardBtn = document.getElementById('result-card');
+            const cardImgEl = document.getElementById('card-img');
+            const emptyMsgEl = document.getElementById('empty-message');
+            const findBtn = document.getElementById('find-btn'); 
+            const detailsHintEl = document.getElementById('click-details-hint'); // 👈 THIS WIRING WAS MISSING
+
+            const targetUser = inputField.value.trim().toLowerCase().replace(/^@/, '');
+
+            if (!targetUser) {
+                alert("Please enter a username first.");
+                return;
+            }
+
+            findBtn.innerText = "searching";
+            findBtn.classList.add('searching-pulse');
+            findBtn.disabled = true;
+
+            const record = loyaltyDatabase[targetUser];
+
+            setTimeout(() => {
+                findBtn.innerText = "FIND";
+                findBtn.classList.remove('searching-pulse');
+                findBtn.disabled = false;
+
+                if (record) {
+                    currentActiveRecord = record;
+                    cardImgEl.src = record.image;
+                    emptyMsgEl.style.display = 'none';
+                    resultCardBtn.style.display = 'block';
+                    detailsHintEl.style.display = 'block'; // 👈 THIS MAKES IT SHOW UP ON SUCCESS
+                } else {
+                    currentActiveRecord = null;
+                    resultCardBtn.style.display = 'none';
+                    cardImgEl.src = '';
+                    emptyMsgEl.style.display = 'block';
+                    detailsHintEl.style.display = 'none'; // 👈 THIS KEEPS IT HIDDEN ON FAILURE
                 }
-                matches.push(currentColumn.trim());
+            }, 1800); 
+        }
+
+        function openEnlargedView() {
+            if (!currentActiveRecord) return;
+
+            const modalOverlay = document.getElementById('portal-modal');
+            const modalImg = document.getElementById('modal-img');
+            const modalDropdown = document.getElementById('modal-dropdown');
+            const listContainer = document.getElementById('discounts-list-container');
+
+            modalImg.src = currentActiveRecord.image;
+            listContainer.innerHTML = '';
+
+            if (currentActiveRecord.hasDiscount && currentActiveRecord.perks && currentActiveRecord.perks.length > 0) {
+                currentActiveRecord.perks.forEach(perk => {
+                    const block = document.createElement('div');
+                    block.className = 'discount-item-block';
+                    
+                    const detailsNode = document.createElement('p');
+                    detailsNode.className = 'info-detail';
+                    detailsNode.textContent = perk.text;
+                    
+                    const expiryNode = document.createElement('span');
+                    expiryNode.className = 'expiry-caption';
+                    expiryNode.textContent = `Expires: ${perk.expiry}`;
+                    
+                    block.appendChild(detailsNode);
+                    block.appendChild(expiryNode);
+                    listContainer.appendChild(block);
+                });
                 
-                const cleanRow = matches.map(val => val.replace(/^"|"$/g, '').trim());
-                if (cleanRow.length < 2) continue;
-                
-                const userKey = cleanRow[0].toLowerCase();
-                const rawDiscountsText = cleanRow[3] || '';
-                
-                data[userKey] = {
-                    image: cleanRow[1],
-                    hasDiscount: cleanRow[2] ? cleanRow[2].toUpperCase() === 'TRUE' : false,
+                modalDropdown.style.display = 'block';
+            } else {
+                modalDropdown.style.display = 'none';
+            }
+
+            modalOverlay.style.display = 'flex';
+            setTimeout(() => {
+                modalOverlay.classList.add('active');
+            }, 10);
+        }
+
+        function closeEnlargedView() {
+            const modalOverlay = document.getElementById('portal-modal');
+            modalOverlay.classList.remove('active');
+            setTimeout(() => {
+                modalOverlay.style.display = 'none';
+            }, 300);
+        }
+    </script>
+</body>
+</html>
